@@ -25,23 +25,26 @@ requirements:
     - ecdsa !=0.15
     - rsa >=4.0,<5.0,!=4.4,!=4.1.1
     - pyasn1 >=0.5.0
-  run_constrained:
-    # extras_require
-    - pycryptodome >=3.3.1,<4.0.0
+    # cryptography is the recommended backend and selected over all others if present
+    # see upstream docs: https://github.com/mpdavis/python-jose#cryptographic-backends
     - cryptography >=3.4.0
-    - pycrypto >=2.6.0,<2.7.0
+  run_constrained:
+    # Optional backends from extras_require - users can install separately
+    - pycryptodome >=3.3.1,<4.0.0  # from extras_require['pycryptodome']
+    - pycrypto >=2.6.0,<2.7.0      # from extras_require['pycrypto']
 
 test:
   imports:
     - jose
     - jose.backends
+    - jose.constants
+    - jose.exceptions
   requires:
     - pip
     - ecdsa !=0.15
     - pytest
     - pytest-cov
     - pytest-runner
-    - python-jose
   files:
     - usage.py
   source_files:
