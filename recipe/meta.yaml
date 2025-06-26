@@ -1,61 +1,62 @@
 {% set name = "python-jose" %}
-{% set version = "3.3.0" %}
+{% set version = "3.5.0" %}
 
 package:
   name: "{{ name|lower }}"
   version: "{{ version }}"
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 55779b5e6ad599c6336191246e95eb2293a9ddebd555f796a65f838f07e5d78a
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/python_jose-{{ version }}.tar.gz
+  sha256: fb4eaa44dbeb1c26dcc69e4bd7ec54a1cb8dd64d3b4d81ef08d90ff453f2b01b
 
 build:
   number: 0
-  noarch: python
-  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
+  skip: true  # [py<39]
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
 requirements:
   host:
-    - python >=3.6
+    - python
     - pip
-    # required in setup_requires
-    - pytest-runner
     - setuptools >=39.2.0
     - wheel
   run:
-    - python >=3.6
-    - ecdsa <1.0
-    - six <2.0
-    - future <1.0
-    - pycryptodome >=3.3.1,<4.0.0
+    - python
     - ecdsa !=0.15
-    - rsa
-    - pyasn1
+    - rsa >=4.0,<5.0,!=4.4,!=4.1.1
+    - pyasn1 >=0.5.0
+    # cryptography is the recommended backend and selected over all others if present
+    # see upstream docs: https://github.com/mpdavis/python-jose#cryptographic-backends
+    - cryptography >=3.4.0
+  run_constrained:
+    # Optional backends from extras_require - users can install separately
+    - pycryptodome >=3.3.1,<4.0.0  # from extras_require['pycryptodome']
+    - pycrypto >=2.6.0,<2.7.0      # from extras_require['pycrypto']
 
 test:
   imports:
     - jose
     - jose.backends
+    - jose.constants
+    - jose.exceptions
   requires:
     - pip
     - ecdsa !=0.15
     - pytest
     - pytest-cov
     - pytest-runner
-    - python-jose
-  commands:
-    - pytest
   files:
     - usage.py
   source_files:
     - tests
+    - pytest.ini
   commands:
     - pip check
     - python usage.py
     - pytest -m "not (pycryptodome or pycrypto or backend_compatibility)" tests
 
 about:
-  home: http://github.com/mpdavis/python-jose
+  home: https://github.com/mpdavis/python-jose
   license: MIT
   license_family: MIT
   license_file: LICENSE
