@@ -8,9 +8,11 @@ package:
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/python_jose-{{ version }}.tar.gz
   sha256: fb4eaa44dbeb1c26dcc69e4bd7ec54a1cb8dd64d3b4d81ef08d90ff453f2b01b
+  patches:
+    - patches/0001-Patch-setup.cfg-to-move-cryptographic-dependencies-t.patch
 
 build:
-  number: 0
+  number: 1
   skip: true  # [py<39]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
 
@@ -22,16 +24,19 @@ requirements:
     - wheel
   run:
     - python
-    - ecdsa !=0.15
-    - rsa >=4.0,<5.0,!=4.4,!=4.1.1
-    - pyasn1 >=0.5.0
     # cryptography is the recommended backend and selected over all others if present
+    # when cryptography is installed, rsa, ecdsa and pyasn1 are unused
     # see upstream docs: https://github.com/mpdavis/python-jose#cryptographic-backends
     - cryptography >=3.4.0
   run_constrained:
     # Optional backends from extras_require - users can install separately
     - pycryptodome >=3.3.1,<4.0.0  # from extras_require['pycryptodome']
     - pycrypto >=2.6.0,<2.7.0      # from extras_require['pycrypto']
+    # These are optional cryptographic backends that can be installed separately
+    # When cryptography is installed, these are unused
+    - ecdsa !=0.15
+    - rsa >=4.0,<5.0,!=4.4,!=4.1.1
+    - pyasn1 >=0.5.0
 
 test:
   imports:
@@ -41,7 +46,6 @@ test:
     - jose.exceptions
   requires:
     - pip
-    - ecdsa !=0.15
     - pytest
     - pytest-cov
     - pytest-runner
@@ -53,7 +57,7 @@ test:
   commands:
     - pip check
     - python usage.py
-    - pytest -m "not (pycryptodome or pycrypto or backend_compatibility)" tests
+    - pytest -m "not (pycryptodome or pycrypto or backend_compatibility or ecdsa)" tests
 
 about:
   home: https://github.com/mpdavis/python-jose
