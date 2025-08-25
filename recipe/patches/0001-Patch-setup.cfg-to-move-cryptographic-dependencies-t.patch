@@ -1,0 +1,42 @@
+From 1bb4e443a5185b3ea18fc092b9833878799d6fc8 Mon Sep 17 00:00:00 2001
+From: Charles Bousseau <cbousseau@anaconda.com>
+Date: Thu, 21 Aug 2025 15:10:02 -0400
+Subject: [PATCH] Patch setup.cfg to move cryptographic dependencies to
+ run_constrained
+
+- Remove ecdsa, rsa and pyasn1 from install_requires
+- Add comment explaining cryptography is the recommended backend and when
+  cryptography is installed, rsa, ecdsa and pyasn1 are unused
+
+This change allows users to install only the cryptographic backends they need
+while maintaining compatibility constraints for optional dependencies.
+---
+ setup.cfg | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/setup.cfg b/setup.cfg
+index c4ef740..8d11acf 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -32,15 +32,14 @@ classifiers =
+ [options]
+ packages = find:
+ python_requires = >=3.9
+-install_requires = 
+-	ecdsa != 0.15
+-	rsa >=4.0, <5.0, !=4.4, !=4.1.1
+-	pyasn1 >=0.5.0
++install_requires =
+ 
+ [options.extras_require]
+ test = 
+ 	pytest
+ 	pytest-cov
++# cryptography is the recommended backend and selected over all others if present
++# when cryptography is installed, rsa, ecdsa and pyasn1 are unused
+ cryptography = 
+ 	cryptography >=3.4.0
+ pycrypto = 
+-- 
+2.39.5 (Apple Git-154)
+
